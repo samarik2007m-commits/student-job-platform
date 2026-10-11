@@ -1,657 +1,618 @@
-:root {
-  --bg: #f4f7ff;
-  --white: #ffffff;
-  --text: #1a2240;
-  --muted: #5f6d8b;
-  --primary: #5d6cff;
-  --primary-dark: #4354ed;
-  --secondary: #edf1ff;
-  --success: #15c39a;
-  --line: #e8edf7;
-  --shadow: 0 22px 50px rgba(27, 36, 64, 0.12);
-  --radius: 24px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-select {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-.container {
-  width: min(1120px, calc(100% - 32px));
-  margin: 0 auto;
-}
-
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(244, 247, 255, 0.8);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(232, 237, 247, 0.8);
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 82px;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 800;
-}
-
-.brand-mark {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary), #7a67ff);
-  color: white;
-  box-shadow: 0 12px 24px rgba(93, 108, 255, 0.25);
-}
-
-.nav-links {
-  display: flex;
-  gap: 22px;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.nav-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  padding: 0 22px;
-  border: none;
-  border-radius: 14px;
-  font-weight: 700;
-  transition: transform 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: white;
-  box-shadow: 0 18px 26px rgba(93, 108, 255, 0.18);
-}
-
-.btn-light {
-  background: rgba(93, 108, 255, 0.08);
-  color: var(--primary);
-}
-
-.small {
-  height: 40px;
-  padding: 0 14px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.hero {
-  padding: 72px 0 42px;
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 48px;
-  align-items: center;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  padding: 0.55rem 0.9rem;
-  background: rgba(93, 108, 255, 0.08);
-  color: var(--primary);
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.badge-alt {
-  background: rgba(21, 195, 154, 0.1);
-  color: #0e866d;
-}
-
-.hero h1 {
-  margin: 18px 0 0;
-  font-size: clamp(2.8rem, 4vw, 4.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.07em;
-}
-
-.hero p {
-  margin-top: 18px;
-  color: var(--muted);
-  font-size: 1.06rem;
-  max-width: 620px;
-}
-
-.search-box {
-  display: grid;
-  grid-template-columns: 1.5fr 0.9fr auto;
-  gap: 12px;
-  margin-top: 28px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-  padding: 12px;
-}
-
-.search-box input,
-.search-box select,
-.auth-form input {
-  height: 54px;
-  border: 1px solid var(--line);
-  background: var(--white);
-  border-radius: 14px;
-  padding: 0 16px;
-  color: var(--text);
-  outline: none;
-}
-
-.search-box input:focus,
-.search-box select:focus,
-.auth-form input:focus {
-  border-color: rgba(93, 108, 255, 0.5);
-  box-shadow: 0 0 0 4px rgba(93, 108, 255, 0.08);
-}
-
-.stats-row {
-  display: flex;
-  gap: 36px;
-  flex-wrap: wrap;
-  margin-top: 32px;
-}
-
-.stats-row div {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.stats-row strong {
-  font-size: 1.7rem;
-}
-
-.stats-row span {
-  color: var(--muted);
-}
-
-.visual-panel {
-  position: relative;
-  min-height: 520px;
-  display: grid;
-  place-items: center;
-}
-
-.job-card-preview {
-  width: min(420px, 90%);
-  background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%);
-  border: 1px solid rgba(232, 237, 247, 0.9);
-  border-radius: 30px;
-  box-shadow: var(--shadow);
-  padding: 20px;
-}
-
-.preview-header {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.dot.red { background: #ef4444; }
-.dot.yellow { background: #fbbf24; }
-.dot.green { background: #22c55e; }
-
-.preview-content {
-  background: linear-gradient(135deg, #edf1ff 0%, #ffffff 100%);
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  padding: 18px;
-}
-
-.mini-tag {
-  display: inline-block;
-  background: rgba(93, 108, 255, 0.08);
-  color: var(--primary);
-  border-radius: 999px;
-  padding: 0.42rem 0.7rem;
-  font-size: 0.76rem;
-  font-weight: 700;
-}
-
-.preview-content h3 {
-  margin-top: 14px;
-  font-size: clamp(1.6rem, 2vw, 2.2rem);
-  line-height: 1.2;
-}
-
-.preview-content p {
-  color: var(--muted);
-  margin-top: 8px;
-}
-
-.preview-content ul {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 18px 0 0;
-  padding: 0;
-}
-
-.preview-content li {
-  padding: 0.38rem 0.7rem;
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.floating-card {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--white);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-  border-radius: 18px;
-  padding: 16px 18px;
-}
-
-.floating-card span {
-  font-size: 1.9rem;
-}
-
-.floating-card strong,
-.floating-card small {
-  display: block;
-}
-
-.floating-card small {
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-.floating-card.small {
-  left: 26px;
-  bottom: 26px;
-}
-
-.floating-card.bigger {
-  right: 15px;
-  top: 15px;
-}
-
-.partners {
-  padding: 12px 0 18px;
-}
-
-.partner-row {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(80px, 1fr));
-  align-items: center;
-  text-align: center;
-  gap: 14px;
-  color: rgba(26, 34, 64, 0.66);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.jobs-section,
-.features {
-  padding: 88px 0 8px;
-}
-
-.section-heading {
-  margin-bottom: 28px;
-}
-
-.section-heading.center {
-  text-align: center;
-}
-
-.section-heading h2 {
-  margin-top: 16px;
-  font-size: clamp(2rem, 3vw, 3rem);
-  line-height: 1.1;
-  letter-spacing: -0.05em;
-}
-
-.jobs-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.job-box {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: 0 12px 30px rgba(20, 28, 45, 0.04);
-}
-
-.job-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.job-badge {
-  width: 52px;
-  height: 52px;
-  display: grid;
-  place-items: center;
-  border-radius: 16px;
-  color: white;
-  font-weight: 800;
-  font-size: 0.8rem;
-}
-
-.job-badge.development {
-  background: linear-gradient(135deg, #5d6cff, #7d63ff);
-}
-
-.job-badge.marketing {
-  background: linear-gradient(135deg, #ff7a59, #ffb56b);
-}
-
-.job-badge.design {
-  background: linear-gradient(135deg, #15c39a, #1ca58c);
-}
-
-.job-badge.finance {
-  background: linear-gradient(135deg, #1fc7c4, #0f172a);
-}
-
-.job-badge.support {
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-}
-
-.job-type {
-  background: rgba(93, 108, 255, 0.08);
-  color: var(--primary);
-  border-radius: 999px;
-  padding: 0.42rem 0.7rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.job-box h3 {
-  font-size: 1.48rem;
-  line-height: 1.25;
-}
-
-.job-info {
-  color: var(--muted);
-  margin-top: 8px;
-}
-
-.job-desc {
-  color: var(--muted);
-  margin-top: 12px;
-}
-
-.tags-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 18px 0 20px;
-}
-
-.tags-row span {
-  background: var(--secondary);
-  color: var(--primary);
-  border-radius: 999px;
-  padding: 0.35rem 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.job-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
-}
-
-.job-bottom strong {
-  font-size: 1.08rem;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.feature-box,
-.auth-box,
-.profile-box {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 18px 35px rgba(20, 28, 45, 0.04);
-}
-
-.feature-box {
-  padding: 28px 22px;
-}
-
-.icon {
-  width: 64px;
-  height: 64px;
-  display: grid;
-  place-items: center;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(93, 108, 255, 0.12), rgba(93, 108, 255, 0.02));
-  font-size: 2rem;
-  margin-bottom: 18px;
-}
-
-.feature-box h3 {
-  margin-bottom: 10px;
-  font-size: 1.3rem;
-}
-
-.feature-box p {
-  color: var(--muted);
-}
-
-.auth-wrap {
-  padding: 90px 0 60px;
-}
-
-.auth-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.auth-box {
-  padding: 28px 22px;
-}
-
-.auth-box h3 {
-  margin-top: 16px;
-  font-size: clamp(1.7rem, 2vw, 2.2rem);
-  letter-spacing: -0.05em;
-}
-
-.auth-form {
-  margin-top: 24px;
-  display: grid;
-  gap: 18px;
-}
-
-.auth-form label {
-  display: grid;
-  gap: 8px;
-  font-weight: 600;
-}
-
-.auth-form input {
-  width: 100%;
-}
-
-.message-box {
-  width: min(1120px, calc(100% - 32px));
-  margin: 22px auto 0;
-  padding: 14px 18px;
-  background: rgba(21, 195, 154, 0.08);
-  border: 1px solid rgba(21, 195, 154, 0.2);
-  border-radius: 14px;
-  color: #0f7f67;
-  font-weight: 600;
-}
-
-.profile-box {
-  margin-top: 26px;
-  padding: 26px 24px;
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.avatar {
-  width: 62px;
-  height: 62px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #7d63ff);
-  color: white;
-  font-size: 1.4rem;
-  font-weight: 800;
-}
-
-.profile-header h3 {
-  margin: 0;
-  font-size: clamp(1.6rem, 2vw, 2.1rem);
-}
-
-.profile-header p {
-  margin: 4px 0 0;
-  color: var(--muted);
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-.profile-grid label {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: 700;
-}
-
-.profile-grid p {
-  color: var(--muted);
-}
-
-.footer {
-  padding: 20px 0 48px;
-}
-
-.footer-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid var(--line);
-  padding-top: 24px;
-  color: var(--muted);
-}
-
-@media (max-width: 980px) {
-  .hero-grid,
-  .auth-grid,
-  .profile-grid,
-  .features-grid,
-  .jobs-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 760px) {
-  .nav-links,
-  .nav-actions {
-    display: none;
-  }
-
-  .search-box {
-    grid-template-columns: 1fr;
-  }
-
-  .partner-row {
-    grid-template-columns: repeat(2, minmax(100px, 1fr));
-  }
-
-  .footer-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
+import { useEffect, useMemo, useState } from 'react';
+
+const API_URL = 'http://localhost:4000/api';
+
+const defaultLogin = {
+  email: 'student@example.com',
+  password: '123456'
+};
+
+const defaultRegister = {
+  name: '',
+  email: '',
+  password: '',
+  role: 'student',
+  company: ''
+};
+
+const defaultJobForm = {
+  title: '',
+  company: '',
+  city: '',
+  type: 'Полный день',
+  category: 'development',
+  salary: '',
+  tags: ''
+};
+
+function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [jobs, setJobs] = useState([]);
+  const [stats, setStats] = useState({
+    jobsTotal: 0,
+    students: 0,
+    employers: 0,
+    admins: 0,
+    applications: 0
+  });
+  const [user, setUser] = useState(null);
+  const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [loginForm, setLoginForm] = useState(defaultLogin);
+  const [registerForm, setRegisterForm] = useState(defaultRegister);
+  const [jobForm, setJobForm] = useState(defaultJobForm);
+  const [message, setMessage] = useState('');
+
+  const loadJobs = async () => {
+    const response = await fetch(`${API_URL}/jobs`);
+    const data = await response.json();
+    setJobs(data || []);
+  };
+
+  const loadStats = async () => {
+    const response = await fetch(`${API_URL}/stats`);
+    const data = await response.json();
+    setStats(data || {
+      jobsTotal: 0,
+      students: 0,
+      employers: 0,
+      admins: 0,
+      applications: 0
+    });
+  };
+
+  useEffect(() => {
+    loadJobs();
+    loadStats();
+  }, []);
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
+      const matchesSearch = !search || `${job.title} ${job.company} ${job.city} ${job.tags.join(' ')}`
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [jobs, search, selectedCategory]);
+
+  const applyToJob = async (jobId) => {
+    if (!user || user.role !== 'student') {
+      setMessage('Только студенты могут откликаться на вакансии');
+      return;
+    }
+
+    const response = await fetch(`${API_URL}/jobs/${jobId}/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id })
+    });
+
+    const data = await response.json();
+    setMessage(data.message || 'Отклик отправлен');
+    loadJobs();
+    loadStats();
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(loginForm)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.message || 'Ошибка входа');
+      return;
+    }
+
+    setUser(data.user);
+    setActiveTab('dashboard');
+    setMessage('Успешный вход. Добро пожаловать!');
+  };
+
+  const handleRegister = async (event) => {
+    event.preventDefault();
+
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(registerForm)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.message || 'Ошибка регистрации');
+      return;
+    }
+
+    setMessage('Регистрация завершена. Теперь можно войти в систему.');
+    setRegisterForm(defaultRegister);
+  };
+
+  const handleCreateJob = async (event) => {
+    event.preventDefault();
+
+    if (!user || !['employer', 'admin'].includes(user.role)) {
+      setMessage('Создавать вакансии могут только работодатель и администратор');
+      return;
+    }
+
+    const payload = {
+      ...jobForm,
+      tags: jobForm.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+      createdBy: user.id
+    };
+
+    const response = await fetch(`${API_URL}/jobs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.message || 'Ошибка создания вакансии');
+      return;
+    }
+
+    setMessage('Вакансия успешно создана');
+    setJobForm(defaultJobForm);
+    loadJobs();
+    loadStats();
+  };
+
+  const userJobs = user && user.role === 'employer'
+    ? jobs.filter((job) => job.company === (user.company || job.company))
+    : jobs;
+
+  return (
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="container nav">
+          <div className="brand">
+            <span className="brand-mark">S</span>
+            <span>StudentJob</span>
+          </div>
+
+          <nav className="nav-links">
+            <button type="button" className={activeTab === 'home' ? 'nav-button active' : 'nav-button'} onClick={() => setActiveTab('home')}>Главная</button>
+            <button type="button" className={activeTab === 'jobs' ? 'nav-button active' : 'nav-button'} onClick={() => setActiveTab('jobs')}>Вакансии</button>
+            <button type="button" className={activeTab === 'dashboard' ? 'nav-button active' : 'nav-button'} onClick={() => setActiveTab('dashboard')}>Дашборд</button>
+          </nav>
+
+          <div className="nav-actions">
+            {!user ? (
+              <>
+                <button className="btn btn-light" onClick={() => setActiveTab('dashboard')}>Войти</button>
+                <button className="btn btn-primary" onClick={() => setActiveTab('jobs')}>Найти работу</button>
+              </>
+            ) : (
+              <>
+                <span className="user-pill">{user.name}</span>
+                <button className="btn btn-light" onClick={() => setUser(null)}>Выйти</button>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main>
+        {activeTab !== 'dashboard' && (
+          <section className="hero">
+            <div className="container hero-grid">
+              <div>
+                <span className="badge">Для студентов и молодых специалистов</span>
+                <h1>Найди работу, которая поможет расти.</h1>
+                <p>
+                  Платформа для стажировок, частичной занятости, проектов и ранних карьерных возможностей для студентов.
+                </p>
+
+                <div className="search-box">
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Поиск: frontend, маркетинг, UI/UX"
+                  />
+                  <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+                    <option value="all">Все направления</option>
+                    <option value="development">Разработка</option>
+                    <option value="design">Дизайн</option>
+                    <option value="marketing">Маркетинг</option>
+                    <option value="finance">Финансы</option>
+                    <option value="support">Поддержка</option>
+                  </select>
+                  <button className="btn btn-primary">Найти</button>
+                </div>
+
+                <div className="stats-row">
+                  <div>
+                    <strong>{stats.jobsTotal || 1200}</strong>
+                    <span>вакансий</span>
+                  </div>
+                  <div>
+                    <strong>{stats.employers || 340}</strong>
+                    <span>компаний</span>
+                  </div>
+                  <div>
+                    <strong>{stats.applications || 98}%</strong>
+                    <span>подходящих</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="visual-panel">
+                <div className="job-card-preview">
+                  <div className="preview-header">
+                    <span className="dot red"></span>
+                    <span className="dot yellow"></span>
+                    <span className="dot green"></span>
+                  </div>
+
+                  <div className="preview-content">
+                    <span className="mini-tag">Frontend</span>
+                    <h3>Junior Frontend Developer</h3>
+                    <p>Remote • 3-4 дня в неделю</p>
+                    <ul>
+                      <li>React</li>
+                      <li>UI/UX</li>
+                      <li>Git</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="floating-card small">
+                  <span>💼</span>
+                  <div>
+                    <strong>+240</strong>
+                    <small>новых вакансий</small>
+                  </div>
+                </div>
+
+                <div className="floating-card bigger">
+                  <span>✨</span>
+                  <div>
+                    <strong>Подходит тебе</strong>
+                    <small>по навыкам</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section className="partners">
+          <div className="container partner-row">
+            <span>Google</span>
+            <span>Yandex</span>
+            <span>VK</span>
+            <span>Mail.ru</span>
+            <span>Сбер</span>
+            <span>Тинькофф</span>
+          </div>
+        </section>
+
+        {(activeTab === 'jobs' || activeTab === 'home') && (
+          <section className="jobs-section">
+            <div className="container">
+              <div className="section-heading">
+                <span className="badge badge-alt">Подборка вакансий</span>
+                <h2>Популярные предложения</h2>
+              </div>
+
+              <div className="jobs-grid">
+                {filteredJobs.map((job) => (
+                  <article className="job-box" key={job.id}>
+                    <div className="job-top">
+                      <div className={`job-badge ${job.category}`}>
+                        {String(job.company).slice(0, 3).toUpperCase()}
+                      </div>
+                      <span className="job-type">{job.type}</span>
+                    </div>
+
+                    <h3>{job.title}</h3>
+                    <p className="job-info">{job.company} • {job.city}</p>
+                    <p className="job-desc">
+                      Отличный вариант для студентов, которые хотят получить опыт и развиваться в профессии.
+                    </p>
+
+                    <div className="tags-row">
+                      {(job.tags || []).map((tag) => (
+                        <span key={`${job.id}-${tag}`}>{tag}</span>
+                      ))}
+                    </div>
+
+                    <div className="job-bottom">
+                      <strong>{job.salary}</strong>
+                      <button
+                        className="btn btn-light small"
+                        onClick={() => applyToJob(job.id)}
+                        disabled={!user || user.role !== 'student'}
+                      >
+                        {user && user.role === 'student' ? 'Откликнуться' : 'Войдите как студент'}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section className="features">
+          <div className="container">
+            <div className="section-heading center">
+              <span className="badge badge-alt">Почему выбирают нас</span>
+              <h2>Удобство для студентов и компаний</h2>
+            </div>
+
+            <div className="features-grid">
+              <div className="feature-box">
+                <div className="icon">🎯</div>
+                <h3>Точные совпадения</h3>
+                <p>Подбираем вакансии под навыки, образование и цели поиска.</p>
+              </div>
+
+              <div className="feature-box">
+                <div className="icon">💬</div>
+                <h3>Простое общение</h3>
+                <p>Компания и студент быстро находят общий язык и готовы к контакту.</p>
+              </div>
+
+              <div className="feature-box">
+                <div className="icon">📈</div>
+                <h3>Первые шаги в карьере</h3>
+                <p>Подходящие стажировки, проекты и частичная занятость для роста.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {activeTab === 'dashboard' && (
+          <section className="dashboard-section">
+            <div className="container dashboard-grid">
+              {!user ? (
+                <>
+                  <div className="auth-box">
+                    <span className="badge badge-alt">Вход</span>
+                    <h3>Личный кабинет</h3>
+
+                    <form onSubmit={handleLogin} className="auth-form">
+                      <label>
+                        Email
+                        <input
+                          type="email"
+                          value={loginForm.email}
+                          onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))}
+                        />
+                      </label>
+
+                      <label>
+                        Пароль
+                        <input
+                          type="password"
+                          value={loginForm.password}
+                          onChange={(e) => setLoginForm((prev) => ({ ...prev, password: e.target.value }))}
+                        />
+                      </label>
+
+                      <button type="submit" className="btn btn-primary full-width">Войти</button>
+                    </form>
+                  </div>
+
+                  <div className="auth-box">
+                    <span className="badge badge-alt">Регистрация</span>
+                    <h3>Создать профиль</h3>
+
+                    <form onSubmit={handleRegister} className="auth-form">
+                      <label>
+                        Имя
+                        <input
+                          type="text"
+                          value={registerForm.name}
+                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, name: e.target.value }))}
+                        />
+                      </label>
+
+                      <label>
+                        Email
+                        <input
+                          type="email"
+                          value={registerForm.email}
+                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, email: e.target.value }))}
+                        />
+                      </label>
+
+                      <label>
+                        Пароль
+                        <input
+                          type="password"
+                          value={registerForm.password}
+                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, password: e.target.value }))}
+                        />
+                      </label>
+
+                      <label>
+                        Роль
+                        <select
+                          value={registerForm.role}
+                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, role: e.target.value }))}
+                        >
+                          <option value="student">Студент</option>
+                          <option value="employer">Работодатель</option>
+                          <option value="admin">Админ</option>
+                        </select>
+                      </label>
+
+                      {registerForm.role === 'employer' && (
+                        <label>
+                          Компания
+                          <input
+                            type="text"
+                            value={registerForm.company}
+                            onChange={(e) => setRegisterForm((prev) => ({ ...prev, company: e.target.value }))}
+                          />
+                        </label>
+                      )}
+
+                      <button type="submit" className="btn btn-primary full-width">Зарегистрироваться</button>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="profile-box wide">
+                    <div className="profile-header">
+                      <div className="avatar">{user.name?.charAt(0).toUpperCase()}</div>
+                      <div>
+                        <h3>{user.name}</h3>
+                        <p>{user.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="profile-grid">
+                      <div>
+                        <label>Роль</label>
+                        <p>{user.role === 'student' ? 'Студент' : user.role === 'employer' ? 'Работодатель' : 'Администратор'}</p>
+                      </div>
+
+                      <div>
+                        <label>Статус</label>
+                        <p>{user.status || 'Активен'}</p>
+                      </div>
+                    </div>
+
+                    <div className="profile-grid">
+                      <div>
+                        <label>Навыки</label>
+                        <div className="tags-row">
+                          {(user.skills || ['HTML', 'CSS', 'JavaScript']).map((skill) => (
+                            <span key={skill}>{skill}</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label>О себе</label>
+                        <p>{user.bio || 'Профиль успешно заполнен.'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {['employer', 'admin'].includes(user.role) && (
+                    <div className="profile-box">
+                      <span className="badge badge-alt">Добавить вакансию</span>
+                      <h3>Создать новую публикацию</h3>
+
+                      <form onSubmit={handleCreateJob} className="auth-form compact">
+                        <label>
+                          Название вакансии
+                          <input
+                            type="text"
+                            value={jobForm.title}
+                            onChange={(e) => setJobForm((prev) => ({ ...prev, title: e.target.value }))}
+                          />
+                        </label>
+
+                        <label>
+                          Компания
+                          <input
+                            type="text"
+                            value={jobForm.company || user.company || ''}
+                            onChange={(e) => setJobForm((prev) => ({ ...prev, company: e.target.value }))}
+                          />
+                        </label>
+
+                        <div className="split-form">
+                          <label>
+                            Город
+                            <input
+                              type="text"
+                              value={jobForm.city}
+                              onChange={(e) => setJobForm((prev) => ({ ...prev, city: e.target.value }))}
+                            />
+                          </label>
+
+                          <label>
+                            Тип
+                            <select
+                              value={jobForm.type}
+                              onChange={(e) => setJobForm((prev) => ({ ...prev, type: e.target.value }))}
+                            >
+                              <option>Полный день</option>
+                              <option>Удалённо</option>
+                              <option>Стажировка</option>
+                              <option>Частичная занятость</option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <div className="split-form">
+                          <label>
+                            Категория
+                            <select
+                              value={jobForm.category}
+                              onChange={(e) => setJobForm((prev) => ({ ...prev, category: e.target.value }))}
+                            >
+                              <option value="development">Разработка</option>
+                              <option value="design">Дизайн</option>
+                              <option value="marketing">Маркетинг</option>
+                              <option value="finance">Финансы</option>
+                              <option value="support">Поддержка</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            Зарплата
+                            <input
+                              type="text"
+                              value={jobForm.salary}
+                              onChange={(e) => setJobForm((prev) => ({ ...prev, salary: e.target.value }))}
+                            />
+                          </label>
+                        </div>
+
+                        <label>
+                          Теги (через запятую)
+                          <input
+                            type="text"
+                            value={jobForm.tags}
+                            onChange={(e) => setJobForm((prev) => ({ ...prev, tags: e.target.value }))}
+                          />
+                        </label>
+
+                        <button type="submit" className="btn btn-primary full-width">Опубликовать</button>
+                      </form>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {message && <div className="message-box">{message}</div>}
+          </section>
+        )}
+      </main>
+
+      <footer className="footer">
+        <div className="container footer-row">
+          <div className="brand">
+            <span className="brand-mark">S</span>
+            <span>StudentJob</span>
+          </div>
+          <p>© 2026 StudentJob</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+export default App;

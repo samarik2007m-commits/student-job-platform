@@ -1,397 +1,352 @@
-import { useEffect, useMemo, useState } from 'react';
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
-const API_URL = 'http://localhost:4000/api';
+const app = express();
+const PORT = 4000;
+const DATA_DIR = path.join(__dirname, 'data');
+const USERS_PATH = path.join(DATA_DIR, 'users.json');
+const JOBS_PATH = path.join(DATA_DIR, 'jobs.json');
 
-const initialForm = {
-  name: '',
-  email: '',
-  password: ''
-};
+app.use(cors());
+app.use(express.json());
 
-function App() {
-  const [jobs, setJobs] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [search, setSearch] = useState('');
-  const [loginForm, setLoginForm] = useState({ email: 'student@example.com', password: '123456' });
-  const [registerForm, setRegisterForm] = useState(initialForm);
-  const [user, setUser] = useState(null);
-  const [authMessage, setAuthMessage] = useState('');
+const defaultUsers = [
+  {
+    id: 1,
+    name: 'Demo Student',
+    email: 'student@example.com',
+    password: '123456',
+    role: 'student',
+    skills: ['HTML', 'CSS', 'JavaScript', 'React'],
+    bio: 'Студент IT-направления. Ищу стажировку и первые проекты.',
+    status: 'Ищет работу'
+  },
+  {
+    id: 2,
+    name: 'Astra Hiring',
+    email: 'employer@example.com',
+    password: '123456',
+    role: 'employer',
+    company: 'Astra Digital',
+    status: 'Активен'
+  },
+  {
+    id: 3,
+    name: 'Admin Panel',
+    email: 'admin@example.com',
+    password: '123456',
+    role: 'admin',
+    status: 'Администратор'
+  }
+];
 
-  useEffect(() => {
-    fetch(`${API_URL}/jobs`)
-      .then((res) => res.json())
-      .then((data) => setJobs(data))
-      .catch(() => setJobs([]));
-  }, []);
+const defaultJobs = [
+  {
+    id: 1,
+    title: 'Junior Frontend Developer',
+    company: 'Astra Digital',
+    city: 'Москва',
+    type: 'Полный день',
+    category: 'development',
+    salary: 'от 80 000 ₽',
+    tags: ['React', 'JavaScript', 'Remote'],
+    applicants: [],
+    createdAt: Date.now()
+  },
+  {
+    id: 2,
+    title: 'Marketing Intern',
+    company: 'Bright Media',
+    city: 'Санкт-Петербург',
+    type: 'Удалённо',
+    category: 'marketing',
+    salary: 'от 45 000 ₽',
+    tags: ['SMM', 'SEO', 'Analytics'],
+    applicants: [],
+    createdAt: Date.now() - 86400000
+  },
+  {
+    id: 3,
+    title: 'UI/UX Designer',
+    company: 'Pixel Studio',
+    city: 'Казань',
+    type: 'Стажировка',
+    category: 'design',
+    salary: 'от 50 000 ₽',
+    tags: ['Figma', 'UX', 'Research'],
+    applicants: [],
+    createdAt: Date.now() - 172800000
+  },
+  {
+    id: 4,
+    title: 'Finance Analyst Intern',
+    company: 'NovaCapital',
+    city: 'Новосибирск',
+    type: 'Частичная занятость',
+    category: 'finance',
+    salary: 'от 60 000 ₽',
+    tags: ['Excel', 'Finance', 'Data'],
+    applicants: [],
+    createdAt: Date.now() - 259200000
+  },
+  {
+    id: 5,
+    title: 'Customer Support Specialist',
+    company: 'HelioCare',
+    city: 'Екатеринбург',
+    type: 'Удалённо',
+    category: 'support',
+    salary: 'от 42 000 ₽',
+    tags: ['Support', 'Chat', 'Client'],
+    applicants: [],
+    createdAt: Date.now() - 345600000
+  },
+  {
+    id: 6,
+    title: 'Backend Trainee',
+    company: 'CoreStack',
+    city: 'Москва',
+    type: 'Тестовый проект',
+    category: 'development',
+    salary: 'от 70 000 ₽',
+    tags: ['Node.js', 'API', 'SQL'],
+    applicants: [],
+    createdAt: Date.now() - 432000000
+  }
+];
 
-  const filteredJobs = useMemo(() => {
-    return jobs.filter((job) => {
-      const matchesCategory =
-        selectedCategory === 'all' || job.category === selectedCategory;
-      const matchesSearch =
-        !search ||
-        `${job.title} ${job.company} ${job.city} ${job.tags.join(' ')}`
-          .toLowerCase()
-          .includes(search.toLowerCase());
+function ensureDataFiles() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
 
-      return matchesCategory && matchesSearch;
-    });
-  }, [jobs, search, selectedCategory]);
+  if (!fs.existsSync(USERS_PATH)) {
+    fs.writeFileSync(USERS_PATH, JSON.stringify(defaultUsers, null, 2));
+  }
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(loginForm)
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      setAuthMessage(data.message || 'Ошибка логина');
-      return;
-    }
-
-    setUser(data.user);
-    setAuthMessage('Вы успешно вошли в систему');
-  };
-
-  const handleRegister = async (event) => {
-    event.preventDefault();
-
-    const response = await fetch(`${API_URL}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(registerForm)
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      setAuthMessage(data.message || 'Ошибка регистрации');
-      return;
-    }
-
-    setAuthMessage('Регистрация успешна. Теперь можно войти.');
-    setRegisterForm(initialForm);
-  };
-
-  return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="container nav">
-          <div className="brand">
-            <span className="brand-mark">S</span>
-            <span>StudentJob</span>
-          </div>
-
-          <nav className="nav-links">
-            <a href="#home">Главная</a>
-            <a href="#jobs">Вакансии</a>
-            <a href="#profile">Профиль</a>
-          </nav>
-
-          <div className="nav-actions">
-            <button className="btn btn-light">Войти</button>
-            <button className="btn btn-primary">Найти работу</button>
-          </div>
-        </div>
-      </header>
-
-      <main id="home">
-        <section className="hero">
-          <div className="container hero-grid">
-            <div>
-              <span className="badge">Для студентов и молодых специалистов</span>
-              <h1>Найди работу, которая поможет расти.</h1>
-              <p>
-                Стажировки, частичная занятость, удалённые проекты и первые шаги в
-                карьере — всё в одном месте.
-              </p>
-
-              <div className="search-box">
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Поиск: frontend, маркетинг, UI/UX"
-                />
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="all">Все направления</option>
-                  <option value="development">Разработка</option>
-                  <option value="design">Дизайн</option>
-                  <option value="marketing">Маркетинг</option>
-                  <option value="finance">Финансы</option>
-                  <option value="support">Поддержка</option>
-                </select>
-                <button className="btn btn-primary">Найти</button>
-              </div>
-
-              <div className="stats-row">
-                <div>
-                  <strong>1200+</strong>
-                  <span>вакансий</span>
-                </div>
-                <div>
-                  <strong>340</strong>
-                  <span>компаний</span>
-                </div>
-                <div>
-                  <strong>98%</strong>
-                  <span>подходящих</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="visual-panel">
-              <div className="job-card-preview">
-                <div className="preview-header">
-                  <span className="dot red"></span>
-                  <span className="dot yellow"></span>
-                  <span className="dot green"></span>
-                </div>
-
-                <div className="preview-content">
-                  <span className="mini-tag">Frontend</span>
-                  <h3>Junior Frontend Developer</h3>
-                  <p>Remote • 3-4 дня в неделю</p>
-                  <ul>
-                    <li>React</li>
-                    <li>UI/UX</li>
-                    <li>Git</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="floating-card small">
-                <span>💼</span>
-                <div>
-                  <strong>+240</strong>
-                  <small>новых вакансий</small>
-                </div>
-              </div>
-
-              <div className="floating-card bigger">
-                <span>✨</span>
-                <div>
-                  <strong>Подходит тебе</strong>
-                  <small>по навыкам</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="partners">
-          <div className="container partner-row">
-            <span>Google</span>
-            <span>Yandex</span>
-            <span>VK</span>
-            <span>Mail.ru</span>
-            <span>Сбер</span>
-            <span>Тинькофф</span>
-          </div>
-        </section>
-
-        <section className="jobs-section" id="jobs">
-          <div className="container">
-            <div className="section-heading">
-              <span className="badge badge-alt">Подборка вакансий</span>
-              <h2>Популярные предложения</h2>
-            </div>
-
-            <div className="jobs-grid">
-              {filteredJobs.map((job) => (
-                <article className="job-box" key={job.id}>
-                  <div className="job-top">
-                    <div className={`job-badge ${job.category}`}>
-                      {job.company.slice(0, 3).toUpperCase()}
-                    </div>
-                    <span className="job-type">{job.type}</span>
-                  </div>
-
-                  <h3>{job.title}</h3>
-                  <p className="job-info">{job.company} • {job.city}</p>
-                  <p className="job-desc">
-                    Отличный вариант для студентов, которые хотят получить опыт и
-                    развиваться в профессии.
-                  </p>
-
-                  <div className="tags-row">
-                    {job.tags.map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-
-                  <div className="job-bottom">
-                    <strong>{job.salary}</strong>
-                    <button className="btn btn-light small">Откликнуться</button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="features">
-          <div className="container">
-            <div className="section-heading center">
-              <span className="badge badge-alt">Почему выбирают нас</span>
-              <h2>Удобство для студентов и компаний</h2>
-            </div>
-
-            <div className="features-grid">
-              <div className="feature-box">
-                <div className="icon">🎯</div>
-                <h3>Точные совпадения</h3>
-                <p>Подбираем вакансии по навыкам, образованию и опыту.</p>
-              </div>
-
-              <div className="feature-box">
-                <div className="icon">💬</div>
-                <h3>Простое общение</h3>
-                <p>Компания и студент быстро находят общий язык.</p>
-              </div>
-
-              <div className="feature-box">
-                <div className="icon">📈</div>
-                <h3>Первые шаги в карьере</h3>
-                <p>Подходящие проекты, стажировки и частичная занятость.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="auth-wrap" id="profile">
-          <div className="container auth-grid">
-            <div className="auth-box">
-              <span className="badge badge-alt">Вход</span>
-              <h3>Личный кабинет</h3>
-
-              <form onSubmit={handleLogin} className="auth-form">
-                <label>
-                  Email
-                  <input
-                    type="email"
-                    value={loginForm.email}
-                    onChange={(e) =>
-                      setLoginForm((prev) => ({ ...prev, email: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <label>
-                  Пароль
-                  <input
-                    type="password"
-                    value={loginForm.password}
-                    onChange={(e) =>
-                      setLoginForm((prev) => ({ ...prev, password: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <button type="submit" className="btn btn-primary full-width">
-                  Войти
-                </button>
-              </form>
-            </div>
-
-            <div className="auth-box">
-              <span className="badge badge-alt">Регистрация</span>
-              <h3>Создать профиль</h3>
-
-              <form onSubmit={handleRegister} className="auth-form">
-                <label>
-                  Имя
-                  <input
-                    type="text"
-                    value={registerForm.name}
-                    onChange={(e) =>
-                      setRegisterForm((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <label>
-                  Email
-                  <input
-                    type="email"
-                    value={registerForm.email}
-                    onChange={(e) =>
-                      setRegisterForm((prev) => ({ ...prev, email: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <label>
-                  Пароль
-                  <input
-                    type="password"
-                    value={registerForm.password}
-                    onChange={(e) =>
-                      setRegisterForm((prev) => ({ ...prev, password: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <button type="submit" className="btn btn-primary full-width">
-                  Зарегистрироваться
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {authMessage && <div className="message-box">{authMessage}</div>}
-
-          {user && (
-            <div className="container profile-box">
-              <div className="profile-header">
-                <div className="avatar">{user.name.charAt(0).toUpperCase()}</div>
-                <div>
-                  <h3>{user.name}</h3>
-                  <p>{user.email}</p>
-                </div>
-              </div>
-
-              <div className="profile-grid">
-                <div>
-                  <label>Навыки</label>
-                  <div className="tags-row">
-                    {(user.skills || ['HTML', 'CSS', 'JavaScript']).map((skill) => (
-                      <span key={skill}>{skill}</span>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label>О себе</label>
-                  <p>
-                    {user.bio || 'Студент, ищущий первые проекты и стажировки.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
-      </main>
-
-      <footer className="footer">
-        <div className="container footer-row">
-          <div className="brand">
-            <span className="brand-mark">S</span>
-            <span>StudentJob</span>
-          </div>
-          <p>© 2026 StudentJob</p>
-        </div>
-      </footer>
-    </div>
-  );
+  if (!fs.existsSync(JOBS_PATH)) {
+    fs.writeFileSync(JOBS_PATH, JSON.stringify(defaultJobs, null, 2));
+  }
 }
 
-export default App;
+function readJson(filePath, fallback) {
+  try {
+    const raw = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(raw);
+  } catch (error) {
+    fs.writeFileSync(filePath, JSON.stringify(fallback, null, 2));
+    return fallback;
+  }
+}
+
+function getUsers() {
+  return readJson(USERS_PATH, defaultUsers);
+}
+
+function saveUsers(users) {
+  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+}
+
+function getJobs() {
+  return readJson(JOBS_PATH, defaultJobs);
+}
+
+function saveJobs(jobs) {
+  fs.writeFileSync(JOBS_PATH, JSON.stringify(jobs, null, 2));
+}
+
+ensureDataFiles();
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'StudentJob API is running' });
+});
+
+app.get('/api/stats', (req, res) => {
+  const users = getUsers();
+  const jobs = getJobs();
+
+  const stats = {
+    jobsTotal: jobs.length,
+    students: users.filter((u) => u.role === 'student').length,
+    employers: users.filter((u) => u.role === 'employer').length,
+    admins: users.filter((u) => u.role === 'admin').length,
+    applications: jobs.reduce(
+      (sum, job) => sum + (Array.isArray(job.applicants) ? job.applicants.length : 0),
+      0
+    )
+  };
+
+  res.json(stats);
+});
+
+app.get('/api/jobs', (req, res) => {
+  const jobs = getJobs();
+  jobs.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+  res.json(jobs);
+});
+
+app.post('/api/register', (req, res) => {
+  const { name, email, password, role = 'student', company } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Необходимо заполнить все поля' });
+  }
+
+  const users = getUsers();
+  const existing = users.find((user) => user.email.toLowerCase() === String(email).toLowerCase());
+
+  if (existing) {
+    return res.status(409).json({ message: 'Пользователь с таким email уже существует' });
+  }
+
+  const cleanRole = ['student', 'employer', 'admin'].includes(role) ? role : 'student';
+
+  const newUser = {
+    id: Date.now(),
+    name,
+    email,
+    password,
+    role: cleanRole,
+    company: cleanRole === 'employer' ? company || 'My Company' : '',
+    skills: cleanRole === 'student' ? ['HTML', 'CSS'] : [],
+    bio: cleanRole === 'student' ? 'Новый студент, ищущий возможности для развития.' : 'Компания готова к сотрудничеству.',
+    status: cleanRole === 'student' ? 'Ищет работу' : 'Активен'
+  };
+
+  users.push(newUser);
+  saveUsers(users);
+
+  res.status(201).json({
+    message: 'Регистрация успешна',
+    user: {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      company: newUser.company
+    }
+  });
+});
+
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email и пароль обязательны' });
+  }
+
+  const users = getUsers();
+  const user = users.find(
+    (item) => item.email.toLowerCase() === String(email).toLowerCase() && item.password === password
+  );
+
+  if (!user) {
+    return res.status(401).json({ message: 'Неверный email или пароль' });
+  }
+
+  res.json({
+    message: 'Успешный вход',
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      company: user.company || '',
+      skills: user.skills || [],
+      bio: user.bio || '',
+      status: user.status || 'Активен'
+    }
+  });
+});
+
+app.post('/api/jobs', (req, res) => {
+  const { title, company, city, type, category, salary, tags, createdBy } = req.body;
+
+  if (!title || !city || !type || !category || !salary || !createdBy) {
+    return res.status(400).json({ message: 'Заполните все обязательные поля' });
+  }
+
+  const users = getUsers();
+  const user = users.find((item) => Number(item.id) === Number(createdBy));
+
+  if (!user || !['employer', 'admin'].includes(user.role)) {
+    return res.status(403).json({ message: 'Только работодатель или администратор может создавать вакансии' });
+  }
+
+  const jobs = getJobs();
+  const parsedTags = Array.isArray(tags)
+    ? tags
+    : String(tags || '')
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+
+  const newJob = {
+    id: Date.now(),
+    title,
+    company: company || user.company || 'Компания',
+    city,
+    type,
+    category,
+    salary,
+    tags: parsedTags,
+    applicants: [],
+    createdAt: Date.now()
+  };
+
+  jobs.unshift(newJob);
+  saveJobs(jobs);
+
+  res.status(201).json(newJob);
+});
+
+app.post('/api/jobs/:id/apply', (req, res) => {
+  const { userId } = req.body;
+  const jobId = Number(req.params.id);
+
+  if (!userId) {
+    return res.status(400).json({ message: 'Необходим userId' });
+  }
+
+  const users = getUsers();
+  const user = users.find((item) => Number(item.id) === Number(userId));
+
+  if (!user || user.role !== 'student') {
+    return res.status(403).json({ message: 'Подать заявку могут только студенты' });
+  }
+
+  const jobs = getJobs();
+  const job = jobs.find((item) => Number(item.id) === jobId);
+
+  if (!job) {
+    return res.status(404).json({ message: 'Вакансия не найдена' });
+  }
+
+  const alreadyApplied = (job.applicants || []).some((applicant) => Number(applicant.userId) === Number(userId));
+
+  if (alreadyApplied) {
+    return res.status(409).json({ message: 'Вы уже откликались на эту вакансию' });
+  }
+
+  job.applicants = job.applicants || [];
+  job.applicants.push({
+    userId: Number(userId),
+    name: user.name,
+    email: user.email,
+    appliedAt: Date.now()
+  });
+
+  saveJobs(jobs);
+
+  res.json({
+    success: true,
+    message: 'Отклик успешно отправлен',
+    applicantsCount: job.applicants.length
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`StudentJob production-style API running at http://localhost:${PORT}`);
+});
