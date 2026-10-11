@@ -3,14 +3,14 @@
 Commercial MVP for hiring students and internships with monetization, employer accounts, and role management.
 
 ## Features
-- Landing page for startup-like marketplace
-- Student login and account system
-- Employer account with job publishing
-- Admin role and dashboard
-- Multi-tier pricing model
-- Job search and category filtering
-- Application flow for students
-- Local JSON storage for demo deployment
+- landing page for startup-like marketplace
+- student login and account system
+- employer account with job publishing
+- admin role and dashboard
+- multi-tier pricing model
+- job search and category filtering
+- application flow for students
+- local JSON storage for demo deployment
 
 ## Demo accounts
 - Student: student@example.com / 123456
@@ -45,6 +45,7 @@ Open: http://localhost:5173
 - POST /api/subscriptions/activate
 - POST /api/jobs
 - POST /api/jobs/:id/apply
+- GET /api/jobs/:id/applicants
 
 ## Notes
-This version is structured as a commercial MVP and is intentionally built with easy local storage for quick onboarding. It is ready to be upgraded with PostgreSQL, Stripe, mailer, and a production deploy pipeline.
+This version is structured as a commercial MVP and is intentionally built with easy local storage for quick onboarding. It is ready to be upgraded with PostgreSQL, Stripe, email notifications, and a production deploy pipeline.

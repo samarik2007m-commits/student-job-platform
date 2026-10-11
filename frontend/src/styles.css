@@ -29,7 +29,15 @@ function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [jobs, setJobs] = useState([]);
   const [plans, setPlans] = useState([]);
-  const [stats, setStats] = useState({ jobsTotal: 0, students: 0, employers: 0, admins: 0, applications: 0, premiumJobs: 0 });
+  const [stats, setStats] = useState({
+    jobsTotal: 0,
+    students: 0,
+    employers: 0,
+    admins: 0,
+    applications: 0,
+    premiumJobs: 0,
+    activeSubscriptions: 0
+  });
   const [user, setUser] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -38,17 +46,32 @@ function App() {
   const [jobForm, setJobForm] = useState(defaultJobForm);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [applicantsMap, setApplicantsMap] = useState({});
 
   const loadJobs = async () => {
     const response = await fetch(`${API_URL}/jobs`);
     const data = await response.json();
     setJobs(data || []);
+
+    data.forEach(async (job) => {
+      const res = await fetch(`${API_URL}/jobs/${job.id}/applicants`);
+      const list = await res.json();
+      setApplicantsMap((prev) => ({ ...prev, [job.id]: list || [] }));
+    });
   };
 
   const loadStats = async () => {
     const response = await fetch(`${API_URL}/stats`);
     const data = await response.json();
-    setStats(data || { jobsTotal: 0, students: 0, employers: 0, admins: 0, applications: 0, premiumJobs: 0 });
+    setStats(data || {
+      jobsTotal: 0,
+      students: 0,
+      employers: 0,
+      admins: 0,
+      applications: 0,
+      premiumJobs: 0,
+      activeSubscriptions: 0
+    });
   };
 
   const loadPlans = async () => {
@@ -128,7 +151,7 @@ function App() {
     setIsLoading(false);
 
     if (!response.ok) {
-      setMessage(data.message || 'Ошибка ре��истрации');
+      setMessage(data.message || 'Ошибка регистрации');
       return;
     }
 
@@ -194,7 +217,22 @@ function App() {
     setActiveTab('dashboard');
   };
 
+  const handleDeleteJob = async (jobId) => {
+    const response = await fetch(`${API_URL}/jobs/${jobId}`, { method: 'DELETE' });
+    const data = await response.json();
+    if (!response.ok) {
+      setMessage(data.message || 'Не удалось удалить вакансию');
+      return;
+    }
+    setMessage('Вакансия удалена');
+    loadJobs();
+    loadStats();
+  };
+
   const userPlanLabel = plans.find((plan) => plan.id === (user?.plan || 'starter'))?.name || 'Старт';
+  const myJobs = user && user.role !== 'student'
+    ? jobs.filter((job) => user.role === 'admin' || job.company === (user.company || job.company))
+    : [];
 
   return (
     <div className="app-shell">
@@ -232,10 +270,10 @@ function App() {
           <section className="hero">
             <div className="container hero-grid">
               <div>
-                <span className="badge">Для студентов, компаний и HR</span>
-                <h1>Коммерческая платформа для найма студентов.</h1>
+                <span className="badge">Для студентов, HR и компаний</span>
+                <h1>Продажная платформа для найма студентов.</h1>
                 <p>
-                  Вакансии, стажировки, поиск кандидатов, подписки и быстрый старт для бизнеса — всё в одном сервисе.
+                  Современный сервис для поиска стажировок, вакансий, первых проектов и масштабного найма в IT, маркетинге, дизайне и бизнес-направлениях.
                 </p>
 
                 <div className="search-box">
@@ -254,15 +292,15 @@ function App() {
                 <div className="stats-row">
                   <div>
                     <strong>{stats.jobsTotal || 1200}</strong>
-                    <span>вакансий</span>
+                    <span>ва��ансий</span>
                   </div>
                   <div>
                     <strong>{stats.employers || 340}</strong>
                     <span>компаний</span>
                   </div>
                   <div>
-                    <strong>{stats.premiumJobs || 18}</strong>
-                    <span>продвигаемых</span>
+                    <strong>{stats.activeSubscriptions || 18}</strong>
+                    <span>подписок</span>
                   </div>
                 </div>
               </div>
@@ -278,7 +316,7 @@ function App() {
                   <div className="preview-content">
                     <span className="mini-tag">Premium</span>
                     <h3>Junior Frontend Developer</h3>
-                    <p>Москва • Remote</p>
+                    <p>Москва • Remote • 3-4 дня в неделю</p>
                     <ul>
                       <li>React</li>
                       <li>UX/UI</li>
@@ -291,7 +329,7 @@ function App() {
                   <span>💼</span>
                   <div>
                     <strong>+240</strong>
-                    <small>но��ых вакансий</small>
+                    <small>новых вакансий</small>
                   </div>
                 </div>
 
@@ -322,8 +360,8 @@ function App() {
           <section className="jobs-section">
             <div className="container">
               <div className="section-heading">
-                <span className="badge badge-alt">Найм и стажировки</span>
-                <h2>Популярные вакансии</h2>
+                <span className="badge badge-alt">Подборка вакансий</span>
+                <h2>Популярные предложения</h2>
               </div>
 
               <div className="jobs-grid">
@@ -396,27 +434,27 @@ function App() {
         <section className="features">
           <div className="container">
             <div className="section-heading center">
-              <span className="badge badge-alt">Преимущества</span>
-              <h2>Для бизнеса и студентов</h2>
+              <span className="badge badge-alt">Почему выбирают нас</span>
+              <h2>Платформа для бизнеса и студентов</h2>
             </div>
 
             <div className="features-grid">
               <div className="feature-box">
                 <div className="icon">🎯</div>
                 <h3>Точное соответствие</h3>
-                <p>Фильтрация по навыкам, опыту и профилям для быстрого найма.</p>
+                <p>Поиск кандидатов и вакансий по навыкам, опыту и направлению.</p>
               </div>
 
               <div className="feature-box">
                 <div className="icon">💳</div>
                 <h3>Коммерческая модель</h3>
-                <p>Система тарифов и платных публикаций для работодателей и HR.</p>
+                <p>Платные тарифы для компаний и качественные инструменты найма.</p>
               </div>
 
               <div className="feature-box">
                 <div className="icon">📊</div>
                 <h3>Аналитика</h3>
-                <p>Показатели вакансий, кандидатов и эффективности кампаний.</p>
+                <p>Показатели по вакансиям, заинтересованности и активности.</p>
               </div>
             </div>
           </div>
@@ -588,6 +626,32 @@ function App() {
 
                         <button type="submit" className="btn btn-primary full-width">Опубликовать</button>
                       </form>
+                    </div>
+                  )}
+
+                  {user.role !== 'student' && (
+                    <div className="profile-box">
+                      <span className="badge badge-alt">Управление</span>
+                      <h3>Мои вакансии</h3>
+
+                      <div className="jobs-manage-list">
+                        {myJobs.length === 0 ? (
+                          <p className="empty-state">Пока нет опубликованных вакансий</p>
+                        ) : (
+                          myJobs.map((job) => (
+                            <div className="manage-job" key={job.id}>
+                              <div>
+                                <strong>{job.title}</strong>
+                                <p>{job.company} • {job.city}</p>
+                              </div>
+                              <div className="manage-actions">
+                                <span className="applicant-count">{(applicantsMap[job.id] || []).length} откликов</span>
+                                <button className="btn btn-light small" onClick={() => handleDeleteJob(job.id)}>Удалить</button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
                   )}
                 </>

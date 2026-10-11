@@ -18,24 +18,24 @@ const defaultPlans = [
     id: 'starter',
     name: 'Старт',
     price: '₽0',
-    description: 'Для небольших компаний и первых публикаций',
-    features: ['1 вакансия', 'Базовая публикация', 'Личный кабинет'],
+    description: 'Для первых публикаций и тестового запуска',
+    features: ['1 активная вакансия', 'Базовый профиль', 'Личный кабинет'],
     popular: false
   },
   {
     id: 'pro',
     name: 'Профи',
     price: '₽1490/мес',
-    description: 'Для активного найма и регулярных публикаций',
-    features: ['10 вакансий', 'Приоритет в поиске', 'Поддержка откликов'],
+    description: 'Для регулярного найма и приоритета в поиске',
+    features: ['10 вакансий', 'Приоритет в выдаче', 'Уведомлени�� о заявках'],
     popular: true
   },
   {
     id: 'business',
     name: 'Бизнес',
     price: '₽3990/мес',
-    description: 'Для масштабирования HR-процессов',
-    features: ['Неограниченно', 'Кастомный бренд', 'Экспорт заявок'],
+    description: 'Для компаний, которые хотят масштабировать найм',
+    features: ['Неограниченные вакансии', 'Экспорт заявок', 'VIP-поддержка'],
     popular: false
   }
 ];
@@ -130,7 +130,7 @@ const defaultJobs = [
     id: 5,
     title: 'Customer Support Specialist',
     company: 'HelioCare',
-    city: 'Екатери��бург',
+    city: 'Екатеринбург',
     type: 'Удалённо',
     category: 'support',
     salary: 'от 42 000 ₽',
@@ -197,14 +197,23 @@ app.get('/api/stats', (req, res) => {
     employers: users.filter((u) => u.role === 'employer').length,
     admins: users.filter((u) => u.role === 'admin').length,
     applications: jobs.reduce((sum, job) => sum + (Array.isArray(job.applicants) ? job.applicants.length : 0), 0),
-    premiumJobs: jobs.filter((job) => job.premium).length
+    premiumJobs: jobs.filter((job) => job.premium).length,
+    activeSubscriptions: getSubscriptions().filter((item) => item.isActive).length
   });
 });
 
 app.get('/api/jobs', (req, res) => {
   const jobs = getJobs();
-  jobs.sort((a, b) => (Number(b.createdAt || 0) - Number(a.createdAt || 0)));
+  jobs.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
   res.json(jobs);
+});
+
+app.get('/api/jobs/:id/applicants', (req, res) => {
+  const jobs = getJobs();
+  const job = jobs.find((item) => Number(item.id) === Number(req.params.id));
+
+  if (!job) return res.status(404).json({ message: 'Вакансия не найдена' });
+  res.json(job.applicants || []);
 });
 
 app.post('/api/register', (req, res) => {
@@ -216,7 +225,6 @@ app.post('/api/register', (req, res) => {
 
   const users = getUsers();
   const existing = users.find((user) => user.email.toLowerCase() === String(email).toLowerCase());
-
   if (existing) {
     return res.status(409).json({ message: 'Пользователь с таким email уже существует' });
   }
@@ -229,7 +237,7 @@ app.post('/api/register', (req, res) => {
     password,
     role: safeRole,
     company: safeRole === 'employer' ? company || 'Моя компания' : '',
-    plan: safeRole === 'student' ? 'starter' : 'starter',
+    plan: 'starter',
     skills: safeRole === 'student' ? ['HTML', 'CSS'] : [],
     bio: safeRole === 'student' ? 'Новый студент, ищущий возможности для развития.' : 'Компания готова к сотрудничеству.',
     status: safeRole === 'student' ? 'Ищет работу' : 'Активен'
@@ -368,6 +376,16 @@ app.post('/api/jobs', (req, res) => {
   saveJobs(jobs);
 
   res.status(201).json(newJob);
+});
+
+app.delete('/api/jobs/:id', (req, res) => {
+  const jobs = getJobs();
+  const job = jobs.find((item) => Number(item.id) === Number(req.params.id));
+  if (!job) return res.status(404).json({ message: 'Вакансия не найдена' });
+
+  const filtered = jobs.filter((item) => Number(item.id) !== Number(req.params.id));
+  saveJobs(filtered);
+  res.json({ success: true, message: 'Вакансия удалена' });
 });
 
 app.post('/api/jobs/:id/apply', (req, res) => {
