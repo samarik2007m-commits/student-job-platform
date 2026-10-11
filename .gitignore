@@ -1,6 +1,4 @@
-node_modules/
-.env
-.DS_Store
-backend/node_modules/
-frontend/node_modules/
-frontend/dist/
+PORT=4000
+FRONTEND_URL=http://localhost:5173
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
