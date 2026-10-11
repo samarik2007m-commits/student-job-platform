@@ -1,15 +1,16 @@
 # StudentJob Platform
 
-Production-style MVP platform for students, employers, and admins.
+Commercial MVP for hiring students and internships with monetization, employer accounts, and role management.
 
 ## Features
-- Landing page with advanced startup-style UI
+- Landing page for startup-like marketplace
+- Student login and account system
+- Employer account with job publishing
+- Admin role and dashboard
+- Multi-tier pricing model
 - Job search and category filtering
-- Student login and registration
-- Employer login and job publishing
-- Admin dashboard role
-- Simple API for jobs, auth, dashboard stats, and applications
-- Local JSON storage for demo use
+- Application flow for students
+- Local JSON storage for demo deployment
 
 ## Demo accounts
 - Student: student@example.com / 123456
@@ -18,33 +19,32 @@ Production-style MVP platform for students, employers, and admins.
 
 ## Run locally
 
-1. Backend:
+### Backend
 ```bash
 cd backend
 npm install
 npm run dev
 ```
 
-2. Frontend:
+### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev -- --host 0.0.0.0
 ```
 
-3. Open the frontend URL shown in terminal, usually:
-```text
-http://localhost:5173
-```
+Open: http://localhost:5173
 
-## API Endpoints
+## Main routes
 - GET /api/health
 - GET /api/jobs
+- GET /api/plans
 - GET /api/stats
 - POST /api/register
 - POST /api/login
+- POST /api/subscriptions/activate
 - POST /api/jobs
 - POST /api/jobs/:id/apply
 
 ## Notes
-This app is production-oriented in structure and feature coverage, but still intentionally uses local JSON storage for easy demo deployment and onboarding. It is ready to be upgraded with PostgreSQL, Stripe, deploy automation, and role-based employer/admin modules.
+This version is structured as a commercial MVP and is intentionally built with easy local storage for quick onboarding. It is ready to be upgraded with PostgreSQL, Stripe, mailer, and a production deploy pipeline.

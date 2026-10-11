@@ -28,13 +28,8 @@ const defaultJobForm = {
 function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [jobs, setJobs] = useState([]);
-  const [stats, setStats] = useState({
-    jobsTotal: 0,
-    students: 0,
-    employers: 0,
-    admins: 0,
-    applications: 0
-  });
+  const [plans, setPlans] = useState([]);
+  const [stats, setStats] = useState({ jobsTotal: 0, students: 0, employers: 0, admins: 0, applications: 0, premiumJobs: 0 });
   const [user, setUser] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -42,6 +37,7 @@ function App() {
   const [registerForm, setRegisterForm] = useState(defaultRegister);
   const [jobForm, setJobForm] = useState(defaultJobForm);
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadJobs = async () => {
     const response = await fetch(`${API_URL}/jobs`);
@@ -52,18 +48,19 @@ function App() {
   const loadStats = async () => {
     const response = await fetch(`${API_URL}/stats`);
     const data = await response.json();
-    setStats(data || {
-      jobsTotal: 0,
-      students: 0,
-      employers: 0,
-      admins: 0,
-      applications: 0
-    });
+    setStats(data || { jobsTotal: 0, students: 0, employers: 0, admins: 0, applications: 0, premiumJobs: 0 });
+  };
+
+  const loadPlans = async () => {
+    const response = await fetch(`${API_URL}/plans`);
+    const data = await response.json();
+    setPlans(data || []);
   };
 
   useEffect(() => {
     loadJobs();
     loadStats();
+    loadPlans();
   }, []);
 
   const filteredJobs = useMemo(() => {
@@ -72,7 +69,6 @@ function App() {
       const matchesSearch = !search || `${job.title} ${job.company} ${job.city} ${job.tags.join(' ')}`
         .toLowerCase()
         .includes(search.toLowerCase());
-
       return matchesCategory && matchesSearch;
     });
   }, [jobs, search, selectedCategory]);
@@ -97,6 +93,7 @@ function App() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
     const response = await fetch(`${API_URL}/login`, {
       method: 'POST',
@@ -105,6 +102,7 @@ function App() {
     });
 
     const data = await response.json();
+    setIsLoading(false);
 
     if (!response.ok) {
       setMessage(data.message || 'Ошибка входа');
@@ -118,6 +116,7 @@ function App() {
 
   const handleRegister = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
     const response = await fetch(`${API_URL}/register`, {
       method: 'POST',
@@ -126,9 +125,10 @@ function App() {
     });
 
     const data = await response.json();
+    setIsLoading(false);
 
     if (!response.ok) {
-      setMessage(data.message || 'Ошибка регистрации');
+      setMessage(data.message || 'Ошибка ре��истрации');
       return;
     }
 
@@ -147,7 +147,8 @@ function App() {
     const payload = {
       ...jobForm,
       tags: jobForm.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
-      createdBy: user.id
+      createdBy: user.id,
+      plan: user.plan || 'starter'
     };
 
     const response = await fetch(`${API_URL}/jobs`, {
@@ -169,9 +170,31 @@ function App() {
     loadStats();
   };
 
-  const userJobs = user && user.role === 'employer'
-    ? jobs.filter((job) => job.company === (user.company || job.company))
-    : jobs;
+  const handleActivatePlan = async (planId) => {
+    if (!user) {
+      setMessage('Сначала войдите в систему');
+      return;
+    }
+
+    const response = await fetch(`${API_URL}/subscriptions/activate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, planId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.message || 'Ошибка активации тарифа');
+      return;
+    }
+
+    setUser(data.user);
+    setMessage(`Тариф ${planId} активирован`);
+    setActiveTab('dashboard');
+  };
+
+  const userPlanLabel = plans.find((plan) => plan.id === (user?.plan || 'starter'))?.name || 'Старт';
 
   return (
     <div className="app-shell">
@@ -209,19 +232,14 @@ function App() {
           <section className="hero">
             <div className="container hero-grid">
               <div>
-                <span className="badge">Для студентов и молодых специалистов</span>
-                <h1>Найди работу, которая поможет расти.</h1>
+                <span className="badge">Для студентов, компаний и HR</span>
+                <h1>Коммерческая платформа для найма студентов.</h1>
                 <p>
-                  Платформа для стажировок, частичной занятости, проектов и ранних карьерных возможностей для студентов.
+                  Вакансии, стажировки, поиск кандидатов, подписки и быстрый старт для бизнеса — всё в одном сервисе.
                 </p>
 
                 <div className="search-box">
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Поиск: frontend, маркетинг, UI/UX"
-                  />
+                  <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Поиск: frontend, marketing, UI/UX" />
                   <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
                     <option value="all">Все направления</option>
                     <option value="development">Разработка</option>
@@ -243,8 +261,8 @@ function App() {
                     <span>компаний</span>
                   </div>
                   <div>
-                    <strong>{stats.applications || 98}%</strong>
-                    <span>подходящих</span>
+                    <strong>{stats.premiumJobs || 18}</strong>
+                    <span>продвигаемых</span>
                   </div>
                 </div>
               </div>
@@ -258,12 +276,12 @@ function App() {
                   </div>
 
                   <div className="preview-content">
-                    <span className="mini-tag">Frontend</span>
+                    <span className="mini-tag">Premium</span>
                     <h3>Junior Frontend Developer</h3>
-                    <p>Remote • 3-4 дня в неделю</p>
+                    <p>Москва • Remote</p>
                     <ul>
                       <li>React</li>
-                      <li>UI/UX</li>
+                      <li>UX/UI</li>
                       <li>Git</li>
                     </ul>
                   </div>
@@ -273,7 +291,7 @@ function App() {
                   <span>💼</span>
                   <div>
                     <strong>+240</strong>
-                    <small>новых вакансий</small>
+                    <small>но��ых вакансий</small>
                   </div>
                 </div>
 
@@ -304,13 +322,13 @@ function App() {
           <section className="jobs-section">
             <div className="container">
               <div className="section-heading">
-                <span className="badge badge-alt">Подборка вакансий</span>
-                <h2>Популярные предложения</h2>
+                <span className="badge badge-alt">Найм и стажировки</span>
+                <h2>Популярные вакансии</h2>
               </div>
 
               <div className="jobs-grid">
                 {filteredJobs.map((job) => (
-                  <article className="job-box" key={job.id}>
+                  <article className={`job-box ${job.premium ? 'premium' : ''}`} key={job.id}>
                     <div className="job-top">
                       <div className={`job-badge ${job.category}`}>
                         {String(job.company).slice(0, 3).toUpperCase()}
@@ -321,7 +339,7 @@ function App() {
                     <h3>{job.title}</h3>
                     <p className="job-info">{job.company} • {job.city}</p>
                     <p className="job-desc">
-                      Отличный вариант для студентов, которые хотят получить опыт и развиваться в профессии.
+                      Отличный вариант для студентов, которые хотят получить реальный опыт и расти в профессии.
                     </p>
 
                     <div className="tags-row">
@@ -332,11 +350,7 @@ function App() {
 
                     <div className="job-bottom">
                       <strong>{job.salary}</strong>
-                      <button
-                        className="btn btn-light small"
-                        onClick={() => applyToJob(job.id)}
-                        disabled={!user || user.role !== 'student'}
-                      >
+                      <button className="btn btn-light small" onClick={() => applyToJob(job.id)} disabled={!user || user.role !== 'student'}>
                         {user && user.role === 'student' ? 'Откликнуться' : 'Войдите как студент'}
                       </button>
                     </div>
@@ -347,30 +361,62 @@ function App() {
           </section>
         )}
 
+        <section className="pricing-section">
+          <div className="container">
+            <div className="section-heading center">
+              <span className="badge badge-alt">Тарифы</span>
+              <h2>Экономика платформы</h2>
+            </div>
+
+            <div className="pricing-grid">
+              {plans.map((plan) => (
+                <div key={plan.id} className={`plan-card ${plan.popular ? 'popular' : ''}`}>
+                  <div className="plan-header">
+                    <h3>{plan.name}</h3>
+                    {plan.popular && <span className="plan-badge">Популярный</span>}
+                  </div>
+                  <div className="plan-price">{plan.price}</div>
+                  <p>{plan.description}</p>
+
+                  <ul>
+                    {plan.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+
+                  <button className="btn btn-primary full-width" onClick={() => handleActivatePlan(plan.id)}>
+                    {user && user.plan === plan.id ? 'Активен' : 'Подключить'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="features">
           <div className="container">
             <div className="section-heading center">
-              <span className="badge badge-alt">Почему выбирают нас</span>
-              <h2>Удобство для студентов и компаний</h2>
+              <span className="badge badge-alt">Преимущества</span>
+              <h2>Для бизнеса и студентов</h2>
             </div>
 
             <div className="features-grid">
               <div className="feature-box">
                 <div className="icon">🎯</div>
-                <h3>Точные совпадения</h3>
-                <p>Подбираем вакансии под навыки, образование и цели поиска.</p>
+                <h3>Точное соответствие</h3>
+                <p>Фильтрация по навыкам, опыту и профилям для быстрого найма.</p>
               </div>
 
               <div className="feature-box">
-                <div className="icon">💬</div>
-                <h3>Простое общение</h3>
-                <p>Компания и студент быстро находят общий язык и готовы к контакту.</p>
+                <div className="icon">💳</div>
+                <h3>Коммерческая модель</h3>
+                <p>Система тарифов и платных публикаций для работодателей и HR.</p>
               </div>
 
               <div className="feature-box">
-                <div className="icon">📈</div>
-                <h3>Первые шаги в карьере</h3>
-                <p>Подходящие стажировки, проекты и частичная занятость для роста.</p>
+                <div className="icon">📊</div>
+                <h3>Аналитика</h3>
+                <p>Показатели вакансий, кандидатов и эффективности кампаний.</p>
               </div>
             </div>
           </div>
@@ -388,64 +434,43 @@ function App() {
                     <form onSubmit={handleLogin} className="auth-form">
                       <label>
                         Email
-                        <input
-                          type="email"
-                          value={loginForm.email}
-                          onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))}
-                        />
+                        <input type="email" value={loginForm.email} onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))} />
                       </label>
 
                       <label>
                         Пароль
-                        <input
-                          type="password"
-                          value={loginForm.password}
-                          onChange={(e) => setLoginForm((prev) => ({ ...prev, password: e.target.value }))}
-                        />
+                        <input type="password" value={loginForm.password} onChange={(e) => setLoginForm((prev) => ({ ...prev, password: e.target.value }))} />
                       </label>
 
-                      <button type="submit" className="btn btn-primary full-width">Войти</button>
+                      <button type="submit" className="btn btn-primary full-width" disabled={isLoading}>
+                        {isLoading ? 'Входим...' : 'Войти'}
+                      </button>
                     </form>
                   </div>
 
                   <div className="auth-box">
                     <span className="badge badge-alt">Регистрация</span>
-                    <h3>Создать профиль</h3>
+                    <h3>Создать аккаунт</h3>
 
                     <form onSubmit={handleRegister} className="auth-form">
                       <label>
                         Имя
-                        <input
-                          type="text"
-                          value={registerForm.name}
-                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, name: e.target.value }))}
-                        />
+                        <input type="text" value={registerForm.name} onChange={(e) => setRegisterForm((prev) => ({ ...prev, name: e.target.value }))} />
                       </label>
 
                       <label>
                         Email
-                        <input
-                          type="email"
-                          value={registerForm.email}
-                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, email: e.target.value }))}
-                        />
+                        <input type="email" value={registerForm.email} onChange={(e) => setRegisterForm((prev) => ({ ...prev, email: e.target.value }))} />
                       </label>
 
                       <label>
                         Пароль
-                        <input
-                          type="password"
-                          value={registerForm.password}
-                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, password: e.target.value }))}
-                        />
+                        <input type="password" value={registerForm.password} onChange={(e) => setRegisterForm((prev) => ({ ...prev, password: e.target.value }))} />
                       </label>
 
                       <label>
                         Роль
-                        <select
-                          value={registerForm.role}
-                          onChange={(e) => setRegisterForm((prev) => ({ ...prev, role: e.target.value }))}
-                        >
+                        <select value={registerForm.role} onChange={(e) => setRegisterForm((prev) => ({ ...prev, role: e.target.value }))}>
                           <option value="student">Студент</option>
                           <option value="employer">Работодатель</option>
                           <option value="admin">Админ</option>
@@ -455,15 +480,13 @@ function App() {
                       {registerForm.role === 'employer' && (
                         <label>
                           Компания
-                          <input
-                            type="text"
-                            value={registerForm.company}
-                            onChange={(e) => setRegisterForm((prev) => ({ ...prev, company: e.target.value }))}
-                          />
+                          <input type="text" value={registerForm.company} onChange={(e) => setRegisterForm((prev) => ({ ...prev, company: e.target.value }))} />
                         </label>
                       )}
 
-                      <button type="submit" className="btn btn-primary full-width">Зарегистрироваться</button>
+                      <button type="submit" className="btn btn-primary full-width" disabled={isLoading}>
+                        {isLoading ? 'Создаём...' : 'Зарегистрироваться'}
+                      </button>
                     </form>
                   </div>
                 </>
@@ -485,8 +508,8 @@ function App() {
                       </div>
 
                       <div>
-                        <label>Статус</label>
-                        <p>{user.status || 'Активен'}</p>
+                        <label>Тариф</label>
+                        <p>{userPlanLabel}</p>
                       </div>
                     </div>
 
@@ -501,7 +524,7 @@ function App() {
                       </div>
 
                       <div>
-                        <label>О себе</label>
+                        <label>Описание</label>
                         <p>{user.bio || 'Профиль успешно заполнен.'}</p>
                       </div>
                     </div>
@@ -509,44 +532,29 @@ function App() {
 
                   {['employer', 'admin'].includes(user.role) && (
                     <div className="profile-box">
-                      <span className="badge badge-alt">Добавить вакансию</span>
-                      <h3>Создать новую публикацию</h3>
+                      <span className="badge badge-alt">Публикация</span>
+                      <h3>Создать вакансию</h3>
 
                       <form onSubmit={handleCreateJob} className="auth-form compact">
                         <label>
                           Название вакансии
-                          <input
-                            type="text"
-                            value={jobForm.title}
-                            onChange={(e) => setJobForm((prev) => ({ ...prev, title: e.target.value }))}
-                          />
+                          <input type="text" value={jobForm.title} onChange={(e) => setJobForm((prev) => ({ ...prev, title: e.target.value }))} />
                         </label>
 
                         <label>
                           Компания
-                          <input
-                            type="text"
-                            value={jobForm.company || user.company || ''}
-                            onChange={(e) => setJobForm((prev) => ({ ...prev, company: e.target.value }))}
-                          />
+                          <input type="text" value={jobForm.company || user.company || ''} onChange={(e) => setJobForm((prev) => ({ ...prev, company: e.target.value }))} />
                         </label>
 
                         <div className="split-form">
                           <label>
                             Город
-                            <input
-                              type="text"
-                              value={jobForm.city}
-                              onChange={(e) => setJobForm((prev) => ({ ...prev, city: e.target.value }))}
-                            />
+                            <input type="text" value={jobForm.city} onChange={(e) => setJobForm((prev) => ({ ...prev, city: e.target.value }))} />
                           </label>
 
                           <label>
                             Тип
-                            <select
-                              value={jobForm.type}
-                              onChange={(e) => setJobForm((prev) => ({ ...prev, type: e.target.value }))}
-                            >
+                            <select value={jobForm.type} onChange={(e) => setJobForm((prev) => ({ ...prev, type: e.target.value }))}>
                               <option>Полный день</option>
                               <option>Удалённо</option>
                               <option>Стажировка</option>
@@ -558,10 +566,7 @@ function App() {
                         <div className="split-form">
                           <label>
                             Категория
-                            <select
-                              value={jobForm.category}
-                              onChange={(e) => setJobForm((prev) => ({ ...prev, category: e.target.value }))}
-                            >
+                            <select value={jobForm.category} onChange={(e) => setJobForm((prev) => ({ ...prev, category: e.target.value }))}>
                               <option value="development">Разработка</option>
                               <option value="design">Дизайн</option>
                               <option value="marketing">Маркетинг</option>
@@ -572,21 +577,13 @@ function App() {
 
                           <label>
                             Зарплата
-                            <input
-                              type="text"
-                              value={jobForm.salary}
-                              onChange={(e) => setJobForm((prev) => ({ ...prev, salary: e.target.value }))}
-                            />
+                            <input type="text" value={jobForm.salary} onChange={(e) => setJobForm((prev) => ({ ...prev, salary: e.target.value }))} />
                           </label>
                         </div>
 
                         <label>
                           Теги (через запятую)
-                          <input
-                            type="text"
-                            value={jobForm.tags}
-                            onChange={(e) => setJobForm((prev) => ({ ...prev, tags: e.target.value }))}
-                          />
+                          <input type="text" value={jobForm.tags} onChange={(e) => setJobForm((prev) => ({ ...prev, tags: e.target.value }))} />
                         </label>
 
                         <button type="submit" className="btn btn-primary full-width">Опубликовать</button>
